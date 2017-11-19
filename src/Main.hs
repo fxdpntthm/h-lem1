@@ -1,3 +1,8 @@
+module Main where
+
+import LEM1.RoughSet (s1)
 
 main :: IO ()
-main = print "Hello World!"
+main = do
+  print "Hello World!"
+  print s1
