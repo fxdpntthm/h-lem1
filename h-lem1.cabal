@@ -61,6 +61,7 @@ executable h-lem1
   
   -- Other library packages from which modules are imported.
   build-depends:       base >=4.8 && < 4.10
+                     , containers >= 0.5.10.2 && <= 0.5.11
   
   -- Directories containing source files.
   hs-source-dirs:      src
