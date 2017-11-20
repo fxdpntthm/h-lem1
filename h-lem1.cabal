@@ -48,13 +48,12 @@ build-type:          Simple
 -- Constraint on the version of Cabal needed to build this package.
 cabal-version:       >=1.10
 
-
-executable h-lem1
-  -- .hs or .lhs file containing the Main module.
-  main-is:             Main.hs
-  
-  -- Modules included in this executable, other than Main.
-  other-modules:       LEM1.RoughSet
+library
+  exposed-modules:     LEM1.RoughSet
+                     , LEM1.Algorithm
+                     , Model.Rules
+                     , Model.DataSet
+                     , Model.Util
   
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:    
@@ -68,4 +67,36 @@ executable h-lem1
   
   -- Base language which the package is written in.
   default-language:    Haskell2010
+
+executable h-lem1
+  -- .hs or .lhs file containing the Main module.
+  main-is:             Main.hs
   
+  -- Modules included in this executable, other than Main.
+  other-modules:       LEM1.RoughSet
+                     , LEM1.Algorithm
+                     , Model.Rules
+                     , Model.DataSet
+  
+  -- LANGUAGE extensions used by modules in this package.
+  -- other-extensions:    
+  
+  -- Other library packages from which modules are imported.
+  build-depends:       base >=4.8 && < 4.10
+                     , containers >= 0.5.10.2 && <= 0.5.11
+  
+  -- Directories containing source files.
+  hs-source-dirs:      src
+  
+  -- Base language which the package is written in.
+  default-language:    Haskell2010
+
+test-suite test
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Main.hs
+  build-depends:       h-lem1 >= 0.1.0.0 && <= 0.2
+                     , base >=4.8 && < 4.10
+                     , containers >= 0.5.10.2 && <= 0.5.11
+  -- Base language which the package is written in.
+  default-language:    Haskell2010

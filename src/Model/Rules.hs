@@ -1,7 +1,8 @@
 module Model.Rules ( Rule
-                   , checkRule
+                   , ruleCoverage
                    , ruleSetCoverage
                    , showRule
+                   , ruleCoverageHelper
                    ) where
 
 import Data.Set (Set)
@@ -29,14 +30,13 @@ showRule r =
 
 ruleSetCoverage :: Set Rule -> DataFrame -> Set Integer
 ruleSetCoverage rs df =
-  Set.foldl (Set.union) (Set.empty) (Set.map ((flip checkRule) df) rs)
+  Set.foldl (Set.union) (Set.empty) (Set.map ((flip ruleCoverage) df) rs)
 
--- returns the cases satisfying the rule
-checkRule :: Rule -> DataFrame -> Set Integer
-checkRule rule df =
-  (checkRuleHelper Decision (snd rule) df) `Set.intersection`
+-- returns the cases satisfying the rule on the attribute values
+ruleCoverage :: Rule -> DataFrame -> Set Integer
+ruleCoverage rule df =
   (foldl (Set.intersection) (Map.keysSet rs)
-  $ map ((flip (checkRuleHelper Attribute)) df) (fst rule))
+  $ map ((flip (ruleCoverageHelper Attribute)) df) (fst rule))
   where
     rs = get3 df
 
@@ -56,8 +56,8 @@ checkDecisionRules t df =  Map.keysSet (Map.filter (\(_, d) -> d == snd t) rs)
   where
     rs = get3 df
 
-checkRuleHelper :: ColumnType -> (String, String) -> DataFrame -> Set Integer
-checkRuleHelper ct t df =
+ruleCoverageHelper :: ColumnType -> (String, String) -> DataFrame -> Set Integer
+ruleCoverageHelper ct t df =
   case ct of
     Attribute -> checkAttributeRules t df
     Decision  -> checkDecisionRules t df

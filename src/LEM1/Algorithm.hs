@@ -3,6 +3,7 @@ module LEM1.Algorithm ( convertToTuple
                       , getGlobalCovering
                       , computeRuleSet
                       , dropConditions
+                      , isRuleConsistent
                       ) where
 
 import Data.Set (Set)
@@ -18,14 +19,15 @@ import LEM1.RoughSet (leq
                      )
 
 import Model.Rules ( Rule
-                   , checkRule
+                   , ruleCoverage
                    , ruleSetCoverage
                    , showRule
+                   , ruleCoverageHelper
                    )
 
 import Model.DataSet (DataFrame
                      , Rows
-                     -- , Column (SC, NC) 
+                     , ColumnType (Attribute, Decision)
                      , getAStar
                      , getDStar
                      , stripColumn
@@ -33,10 +35,13 @@ import Model.DataSet (DataFrame
                      , getAttributes
                      )
 
+import Model.Util (deleteN)
+
 computeLEM1 :: (String, String) -> DataFrame -> Set Rule
 computeLEM1 target df = undefined
 
 -- computes global covering for a dataset
+-- keep dropping attributes till a* </= d*
 getGlobalCovering :: DataFrame -> DataFrame
 getGlobalCovering = id
 
@@ -68,5 +73,9 @@ getTargetCover t df = (Map.filter (\(_, d) -> d == snd t) rs)
 dropConditions :: Set Int -> DataFrame -> Rule -> Rule
 dropConditions targetCover df r = undefined
 
-ruleDropAttributeN :: Rule -> Integer -> Rule
-ruleDropAttributeN (attrs, des) i = ((deleteN attrs i), des)
+isRuleConsistent :: Rule -> DataFrame -> Bool
+isRuleConsistent r df = (ruleCoverage r df
+  `Set.difference`  ruleCoverageHelper Decision (snd r) df) == Set.empty
+
+ruleDropNthCondition :: Rule -> Integer -> Rule
+ruleDropNthCondition (attrs, des) i = ((deleteN i attrs), des)

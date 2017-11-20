@@ -21,6 +21,8 @@ import Control.Arrow (second)
 
 import Data.List (elemIndex)
 
+import Model.Util (deleteN)
+
 get1:: ([String], String, Rows) -> [String]
 get1 (a, _, _) = a
 
@@ -65,12 +67,6 @@ stripColumn col df = (nMeta, des, nRows)
 
 rowMod :: Integer -> Rows -> Rows
 rowMod i rs = Map.map (\(attrs, des) -> (deleteN i attrs, des)) rs
-
-deleteN :: Integer -> [a] -> [a]
-deleteN _ []     = []
-deleteN i (a:as)
-   | i == 0    = as
-        | otherwise = a : deleteN (i-1) as
 
 showDF :: DataFrame -> String
 showDF df = show (get1 df) ++ " -> " ++ show (get2 df) ++ "\n"
