@@ -1,0 +1,10 @@
+< a a a a d >
+[ A1 A2 A3 A4 D ]
+big yellow soft low positive
+big yellow hard high negative
+medium yellow soft high positive
+medium blue hard high positive
+medium blue hard high positive
+medium blue soft low negative
+big blue hard low so-so
+big blue hard high so-so

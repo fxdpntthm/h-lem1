@@ -42,10 +42,8 @@ r_star = Set.fromList [ Set.fromList [1]
                       , Set.fromList [6,7]
                       , Set.fromList [8]
                       ]
-
 x :: Set Integer
 x = Set.fromList [1, 2, 3, 5, 7]
-
 
 d_star :: Set (Set Int)
 d_star = Set.fromList [ Set.fromList[1,2,3]
@@ -78,7 +76,6 @@ rs = Map.fromList [ (0, (["0.8", "0.3", "7.2"], "very-small"))
 df :: DataFrame
 df = (["A", "B", "C"], "D", rs)
 
-
 df' :: DataFrame
 df' = (["Color", "Temperature"], "Attitude", rs')
 
@@ -86,6 +83,27 @@ rs' :: Rows
 rs' = Map.fromList [ (3, (["red", "medium"], "negative"))
                    , (4, (["red", "low"], "negative"))
                    , (5, (["yellow", "medium"], "negative"))
+                   ]
+
+ruleIC :: Rule
+ruleIC = ([("A", "0.8"), ("B", "1.1")], ("D", "medium"))
+
+ruleC = ([("A", "0.8"), ("B", "1.1"), ("C", "10.2")], ("D", "medium"))
+
+ruleDroppingTest'' = ([("Color", "red"), ("Temperature", "low")], ("Attitude", "negative"))
+
+ruleSet :: Set Rule
+ruleSet = Set.fromList [ ([("A", "0.8"), ("B", "1.1")], ("D", "medium"))
+                       , ([("A", "1.2")], ("D", "small"))
+                       ]
+
+df'' :: DataFrame
+df'' = (["Color", "Temperature"], "Attitude", rs'')
+
+rs'' :: Rows
+rs'' = Map.fromList [ (3, (["red", "medium"], "negative"))
+                   , (4, (["red", "low"], "negative"))
+                   , (5, (["yellow", "low"], "positive"))
                    ]
 
 main :: IO ()
@@ -134,14 +152,16 @@ main = do
   -- print $ ruleSetCoverage ruleSet df
   -- putStrLn $ showRule rule
   -- putStrLn $ unlines (map showRule (Set.toList ruleSet))
-
-
-ruleIC :: Rule
-ruleIC = ([("A", "0.8"), ("B", "1.1")], ("D", "medium"))
-
-ruleC = ([("A", "0.8"), ("B", "1.1"), ("C", "10.2")], ("D", "medium"))
-
-ruleSet :: Set Rule
-ruleSet = Set.fromList [ ([("A", "0.8"), ("B", "1.1")], ("D", "medium"))
-                       , ([("A", "1.2")], ("D", "small"))
-                       ]
+  putStrLn "------------------------------"
+  putStrLn "Testing Rule Dropping"
+  putStrLn "------------------------------"
+  putStrLn $ showDF df''
+  putStrLn $ showRule ruleDroppingTest''
+  putStrLn $ showRule $ dropConditions ruleDroppingTest'' df''
+  putStrLn "------------------------------"
+  putStrLn "Testing Global Covering"
+  putStrLn "------------------------------"
+  putStrLn $ showDF df''
+  putStrLn $ showDF $ getGlobalCovering df''
+  putStrLn $ showDF df
+  putStrLn $ showDF $ getGlobalCovering df

@@ -40,10 +40,21 @@ import Model.Util (deleteN)
 computeLEM1 :: (String, String) -> DataFrame -> Set Rule
 computeLEM1 target df = undefined
 
+isAStrLeqDStr :: DataFrame -> Bool
+isAStrLeqDStr df = (getAStar df) <=*  (getDStar df)
+
 -- computes global covering for a dataset
 -- keep dropping attributes till a* </= d*
 getGlobalCovering :: DataFrame -> DataFrame
-getGlobalCovering = id
+getGlobalCovering df =
+  if (null potentialDF)
+  then df
+  else (getGlobalCovering $ head potentialDF)
+  where
+    allColumns = get1 df
+    candidateDF = map ((flip stripColumn) df) allColumns
+    potentialDF = filter (isAStrLeqDStr) candidateDF
+
 
 -- computes the ruleset given a global covering and a target decision value
 computeRuleSet :: (String, String) -> DataFrame -> Set Rule
@@ -70,8 +81,20 @@ getTargetCover t df = (Map.filter (\(_, d) -> d == snd t) rs)
     rs = get3 df
 
 -- drops conditions from the rules to make them simpler
-dropConditions :: Set Int -> DataFrame -> Rule -> Rule
-dropConditions targetCover df r = undefined
+dropConditions :: Rule -> DataFrame -> Rule
+dropConditions r df = dropConditionsHelper 0  r df
+
+dropConditionsHelper :: Integer -> Rule  -> DataFrame ->  Rule
+dropConditionsHelper i rule df =
+  if (i == (toInteger (length (fst (rule)))))
+  then rule
+  else
+    if (isRuleConsistent new_rule df)
+    then (dropConditionsHelper 0 new_rule df)
+    else (dropConditionsHelper (i+1) rule df)
+  where
+    new_rule = ruleDropNthCondition rule i 
+
 
 isRuleConsistent :: Rule -> DataFrame -> Bool
 isRuleConsistent r df = (ruleCoverage r df
