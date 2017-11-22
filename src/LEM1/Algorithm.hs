@@ -53,7 +53,7 @@ data CPType = UA | LA
 -- this will not touch any concept/decision variables
 -- it will work only on attributes
 preprocess :: DataFrame -> DataFrame
-preprocess = id
+preprocess = discretizeDataFrame 
 
 computeAllLEM1 :: CPType -> DataFrame -> [Set Rule]
 computeAllLEM1 UA df = map (uncurry (computeLEM1 odf)) frames
@@ -155,7 +155,7 @@ dropConditions :: Rule -> DataFrame -> Rule
 dropConditions r df = dropConditionsHelper 0  r df
 
 dropConditionsHelper :: Integer -> Rule  -> DataFrame ->  Rule
-dropConditionsHelper i rule df=
+dropConditionsHelper i rule df =
   if (i == (toInteger (length (fst (rule)))))
   then rule
   else
@@ -172,3 +172,12 @@ isRuleConsistent r df = (ruleCoverage r df
 
 ruleDropNthCondition :: Rule -> Integer -> Rule
 ruleDropNthCondition (attrs, des) i = ((deleteN i attrs), des)
+
+-- TODO
+-- discretizes data frame using all cutpoints method
+discretizeDataFrame :: DataFrame -> DataFrame
+discretizeDataFrame = id
+
+-- adds a column to the dataset
+addColumnToDF :: DataFrame -> String -> [String]-> DataFrame
+addColumnToDF = undefined

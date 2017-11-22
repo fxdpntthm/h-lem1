@@ -34,7 +34,7 @@ dataFrameParser file = (init columnNames, last columnNames, rws)
     ls = tail $ lines file
     columnNames = words $ sanitize (head ls)
     dataRows :: [([String], String)]
-    dataRows = map (convertToDataRow) (map (words) (tail ls))
+    dataRows = map (convertToDataRow) (map (words) (filter (\l -> head l /= '!') $ tail ls))
     rws::Rows
     rws = Map.fromList (zip [0..] dataRows)
 
@@ -76,11 +76,6 @@ replaceDecisionHelper st r = if (decision == st)
                              else (fst r, ((fst . snd) r, "SPECIAL"))
   where
     decision = (snd . snd) r
-
--- TODO
--- discretizes data frame using all cutpoints method
-discretizeDataFrame :: DataFrame -> DataFrame
-discretizeDataFrame = id
 
 repeatDF :: Int -> DataFrame -> [DataFrame]
 repeatDF 0 df = []

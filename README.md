@@ -9,7 +9,6 @@ LEM1 algorithm in haskell
 #### untar the file archive  
 - `tar xvf a553i967_EECS837_project.tar.gz`  
 
-
 #### Execute the following commands
 
 - `cd h-lem1`  
