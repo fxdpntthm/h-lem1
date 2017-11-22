@@ -87,6 +87,7 @@ getAttributeStarHelper =  transMap . getAttributes
 
 getAStar :: DataFrame -> Set (Set Integer)
 getAStar df = Set.fromList $ map snd (Map.assocs $ getAttributeStarHelper df)
+
 --------------------------------------------------------------------------
 
 getDecisions :: DataFrame -> Map Integer String

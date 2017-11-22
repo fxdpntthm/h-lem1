@@ -2,6 +2,7 @@ module Model.Rules ( Rule
                    , ruleCoverage
                    , ruleSetCoverage
                    , showRule
+                   , showRuleSet
                    , ruleCoverageHelper
                    ) where
 
@@ -20,6 +21,10 @@ import Model.DataSet (DataFrame
                      )
 
 type Rule = ([(String, String)], (String, String))
+
+-- Pretty print a ruleset
+showRuleSet :: Set Rule -> String
+showRuleSet = unlines . (map showRule) . Set.toList
 
 showRule :: Rule -> String
 showRule r =
@@ -40,7 +45,7 @@ ruleCoverage rule df =
   where
     rs = get3 df
 
-checkAttributeRules:: (String, String) -> DataFrame -> Set Integer
+checkAttributeRules :: (String, String) -> DataFrame -> Set Integer
 checkAttributeRules t df =
   case columnIndex of
     Just i  -> Map.keysSet

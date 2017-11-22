@@ -1,5 +1,5 @@
 < a a a a d >
-[ A1 A2 A3 A4 D ]
+[ Size Color Feel Temperature Attitude ]
 big yellow soft low positive
 big yellow hard high negative
 medium yellow soft high positive

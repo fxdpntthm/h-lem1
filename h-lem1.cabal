@@ -16,7 +16,7 @@ version:             0.1.0.0
 synopsis:            lem1 algorithm in haskell
 
 -- A longer description of the package.
--- description:         
+-- description:
 
 -- URL for the project homepage or repository.
 homepage:            https://github.com/apoorvingle/h-lem1
@@ -35,7 +35,7 @@ author:              Apoorv Ingle
 maintainer:          apoorv.ingle@ku.edu
 
 -- A copyright notice.
--- copyright:           
+-- copyright:
 
 category:            Data Mining
 
@@ -54,40 +54,47 @@ library
                      , Model.Rules
                      , Model.DataSet
                      , Model.Util
-  
+                     , LERS.Parser
+                       
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:    
-  
+    
   -- Other library packages from which modules are imported.
-  build-depends:       base >=4.8 && < 4.10
+  build-depends:       base >=4.8 && <= 4.20
                      , containers >= 0.5.10.2 && <= 0.5.11
-  
+                     , split >= 0.2.3.2 && <= 0.2.5
+                     , text >= 1.2.2.2 && <= 1.3
+                     , directory >= 1.3.1.5 && <= 1.4
   -- Directories containing source files.
   hs-source-dirs:      src
-  
+    
   -- Base language which the package is written in.
   default-language:    Haskell2010
 
 executable h-lem1
   -- .hs or .lhs file containing the Main module.
   main-is:             Main.hs
-  
+    
   -- Modules included in this executable, other than Main.
   other-modules:       LEM1.RoughSet
                      , LEM1.Algorithm
                      , Model.Rules
                      , Model.DataSet
-  
+                     , Model.Util
+                     , LERS.Parser
+                       
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:    
-  
+    
   -- Other library packages from which modules are imported.
-  build-depends:       base >=4.8 && < 4.10
+  build-depends:       base >=4.8 && <= 4.20
                      , containers >= 0.5.10.2 && <= 0.5.11
-  
+                     , split >= 0.2.3.2 && <= 0.2.5
+                     , text >= 1.2.2.2 && <= 1.3
+                     , directory >= 1.3.1.5 && <= 1.4
   -- Directories containing source files.
   hs-source-dirs:      src
-  
+    
   -- Base language which the package is written in.
   default-language:    Haskell2010
 
@@ -95,8 +102,12 @@ test-suite test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Main.hs
-  build-depends:       h-lem1 >= 0.1.0.0 && <= 0.2
-                     , base >=4.8 && < 4.10
+  other-modules:       DataFrames
+  build-depends:       h-lem1
+                     , base >=4.8 && <= 4.20
                      , containers >= 0.5.10.2 && <= 0.5.11
+                     , split >= 0.2.3.2 && <= 0.2.5
+                     , text >= 1.2.2.2 && <= 1.3
+                     , directory >= 1.3.1.5 && <= 1.4
   -- Base language which the package is written in.
   default-language:    Haskell2010

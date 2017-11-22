@@ -1,0 +1,10 @@
+(Color,yellow) & (Temperature,low) -> (Attitude,positive)
+(Feel,soft) & (Temperature,high) -> (Attitude,positive)
+(Size,medium) & (Temperature,high) -> (Attitude,positive)
+
+(Color,blue) & (Feel,soft) -> (Attitude,negative)
+(Color,yellow) & (Feel,hard) -> (Attitude,negative)
+
+(Feel,hard) & (Temperature,low) -> (Attitude,so-so)
+(Size,big) & (Color,blue) -> (Attitude,so-so)
+
