@@ -4,6 +4,8 @@ LEM1 algorithm in haskell
 
 ## Installation Directions
 
+#### This code has been tested on cycle3.eecs.ku.edu server
+
 #### untar the file archive  
 - `tar xvf a553i967_EECS837_project.tar.gz`  
 
@@ -12,6 +14,7 @@ LEM1 algorithm in haskell
 
 - `cd h-lem1`  
 - `cabal sandbox init`  
+- `cabal update`
 - `cabal install cabal-install`  
 - `cabal configure`  
 - `cabal install --dependencies-only`  
