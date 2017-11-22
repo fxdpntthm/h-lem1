@@ -39,6 +39,20 @@ test/data/hw.txt
 Data set is consistent
 writing certain rules to file: test/data/hw.txt.rules.certain
 ```
+or for inconsistent data set
+
+```
+h-lem1 (master) $ cabal run
+Preprocessing executable 'h-lem1' for h-lem1-0.1.0.0..
+Building executable 'h-lem1' for h-lem1-0.1.0.0..
+Running h-lem1...
+Please enter file path of dataset:
+test/data/breast.txt
+Data set is not consistent
+writing certain rules to file: test/data/breast.txt.rules.certain
+writing possible rules to file: test/data/breast.txt.rules.possible
+```
+
 
 
 #### To enable and execute some sanity tests
