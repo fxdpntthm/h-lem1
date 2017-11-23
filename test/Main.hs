@@ -40,6 +40,11 @@ import LEM1.Algorithm ( convertToTuple
                       , getUpperApproxDF
                       , getLowerApproxDF
                       , isDataSetConsistent
+                      , findNumericalColumns
+                      , addColumnToDF
+                      , findCutPoints
+                      , generateCutPointColumn
+                      , discretizeDataFrame
                       )
 
 import DataFrames (hwDF
@@ -209,19 +214,31 @@ main = do
   -- putStrLn "Parser Testing"
   -- putStrLn "------------------------------"
   -- putStrLn $ showDF $ dataFrameParser dataFrameS
-  f <- readFile "test/data/breast.txt"
+  -- f <- readFile "test/data/breast.txt"
   -- putStrLn f
   -- putStrLn $ showRuleSet (computeLEM1 ("Attitude", "positive")
   --                        (replaceDecisions (dataFrameParser f) ("positive")))
   -- putStrLn $ showDF (dataFrameParser f)
   -- mapM_ putStrLn $ map showRuleSet (computeAllLEM1 LA (dataFrameParser f))
-  --putStrLn $ showDF (snd (getUpperApproxDF ("Attribute", "no-recurrence-events") (dataFrameParser f)))
-  --print $ isDataSetConsistent (snd (getUpperApproxDF ("Attribute", "no-recurrence-events") (dataFrameParser f)))
-  --putStrLn $ showDF (snd (getLowerApproxDF ("Attribute", "no-recurrence-events") (dataFrameParser f)))
+  -- putStrLn $ showDF (snd (getUpperApproxDF ("Attribute", "no-recurrence-events") (dataFrameParser f)))
+  -- print $ isDataSetConsistent (snd (getUpperApproxDF ("Attribute", "no-recurrence-events") (dataFrameParser f)))
+  -- putStrLn $ showDF (snd (getLowerApproxDF ("Attribute", "no-recurrence-events") (dataFrameParser f)))
   -- print $ isDataSetConsistent (snd (getLowerApproxDF ("Attribute", "recurrence-events") (dataFrameParser f)))
-  let odf = dataFrameParser f
-  let gc = getGlobalCovering $ snd (getLowerApproxDF ("Attribute", "recurrence-events") odf)
-  putStrLn $ showDF $ gc
-  putStrLn $ showRuleSet $ computeLEM1 odf ("Attribute", "recurrence-events") gc
+  -- let odf = dataFrameParser f
+  -- let gc = getGlobalCovering $ snd (getLowerApproxDF ("Attribute", "recurrence-events") odf)
+  -- putStrLn $ showDF $ gc
+  -- putStrLn $ showRuleSet $ computeLEM1 odf ("Attribute", "recurrence-events") gc
   -- putStrLn $ showRuleSet $ (uncurry computeLEM1) (getLowerApproxDF ("Attribute", "recurrence-events") (dataFrameParser f))
-
+  putStrLn "------------------------------"
+  putStrLn "Testing column mutations"
+  putStrLn "------------------------------"
+  -- f <- readFile "test/data/hw.txt"
+  -- let odf = (dataFrameParser f)
+  t <- readFile "test/data/breast.txt"
+  let odt = dataFrameParser t
+  print $ findNumericalColumns odt
+  --putStrLn $ showDF odf
+  putStrLn $ showDF $ odt
+  let gc = getGlobalCovering $ snd (getLowerApproxDF ("Attribute", "recurrence-events") odt)
+  putStrLn $ showDF $ gc
+  putStrLn $ showDF $ discretizeDataFrame odt

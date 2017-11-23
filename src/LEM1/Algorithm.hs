@@ -10,15 +10,21 @@ module LEM1.Algorithm ( convertToTuple
                       , CPType (UA, LA)
                       , getUpperApproxDF
                       , getLowerApproxDF
+                      , findNumericalColumns
+                      , addColumnToDF
+                      , findCutPoints
+                      , generateCutPointColumn
+                      , discretizeDataFrame
                       ) where
 
 import Data.Set (Set)
 import qualified Data.Set as Set
-
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
-
+import Data.Char (isDigit)
 import Data.List
+import Text.Read
+import Data.Foldable (concatMap, toList)
 
 import LEM1.RoughSet (leq
                      , (<=*)
@@ -49,11 +55,20 @@ import LERS.Parser (binarizeDataFrame)
 -- should compute using lower or upper?
 data CPType = UA | LA
 
+
+------------------------------------------------------------------------
+-- Some helper functions
+
+flatMap f = concatMap (Data.Foldable.toList . f)
+windows n xs = transpose (take n (tails xs))
+
+------------------------------------------------
+
 -- preprocess the dataframe into correct format
 -- this will not touch any concept/decision variables
 -- it will work only on attributes
 preprocess :: DataFrame -> DataFrame
-preprocess = discretizeDataFrame 
+preprocess = discretizeDataFrame
 
 computeAllLEM1 :: CPType -> DataFrame -> [Set Rule]
 computeAllLEM1 UA df = map (uncurry (computeLEM1 odf)) frames
@@ -104,7 +119,6 @@ getLowerApproxDF (attr, val) df = ((attr, val), dataSubsetSelector df indices)
     f_original_indices = Set.fromList (map (fst) foriginalRows)
     indices = lower_approx f_original_indices (getAStar df)
 
-
 -- computes global covering for a dataset
 -- keep dropping attributes till a* </= d*
 getGlobalCovering :: DataFrame -> DataFrame
@@ -124,7 +138,6 @@ getGlobalCoveringHelper i df =
   where
     -- strip the ith column of df
     new_df = stripColumn (genericIndex (get1 df) i) df
-
 
 -- computes the ruleset given a global covering and a target decision value
 computeRuleSet :: (String, String) -> DataFrame -> Set Rule
@@ -156,7 +169,7 @@ dropConditions r df = dropConditionsHelper 0  r df
 
 dropConditionsHelper :: Integer -> Rule  -> DataFrame ->  Rule
 dropConditionsHelper i rule df =
-  if (i == (toInteger (length (fst (rule)))))
+  if (i >= (toInteger (length (fst (rule)))))
   then rule
   else
     if (isRuleConsistent new_rule df)
@@ -173,11 +186,89 @@ isRuleConsistent r df = (ruleCoverage r df
 ruleDropNthCondition :: Rule -> Integer -> Rule
 ruleDropNthCondition (attrs, des) i = ((deleteN i attrs), des)
 
--- TODO
+
+-- foldl (b -> a -> b) -> [a] -> b
+-- a = columns
+-- b = dataframe
+
 -- discretizes data frame using all cutpoints method
 discretizeDataFrame :: DataFrame -> DataFrame
-discretizeDataFrame = id
+discretizeDataFrame df = foldl (addColumnToDF) (numericalColumsRemovedDF) newColumns
+  where
+    colNames :: [String]
+    colNames = findNumericalColumns df
+    cutPoints :: [(String,[Float])]
+    cutPoints = zip colNames $ map (findCutPoints df) colNames
+    newColumnCutPoints = flatMap (flattenColumn) cutPoints
+    newColumns :: [(String, [String])]
+    newColumns = reverse $ map (uncurry (generateCutPointColumn df)) newColumnCutPoints
+    numericalColumsRemovedDF :: DataFrame
+    numericalColumsRemovedDF = foldl (flip stripColumn) df colNames
+
+flattenColumn :: (String, [Float]) -> [(String, Float)]
+flattenColumn (n, vals) = zip (repeat n) vals
+
+-- returns a list of all the columns that need to be discretized
+findNumericalColumns :: DataFrame -> [String]
+findNumericalColumns df = map (fst) $ filter (isNumber . snd) z
+  where
+    z :: [(String, String)]
+    z = zip (get1 df) (snd $ head (Map.toList (getAttributes df)))
+
+-- converts the value into "lower..avg" or "avg..higher"
+convertToSymbolic :: (Float, Float, Float) -> Float -> String
+convertToSymbolic (minV, avgV, maxV) num =
+  if (num <  avgV)
+  then (show minV ++ ".." ++ show avgV)
+  else (show avgV ++ ".." ++ show maxV)
+
+-- given column name and cut point it generates the correct column name and values
+generateCutPointColumn :: DataFrame -> String -> Float -> (String, [String])
+generateCutPointColumn df colName cutPt = (colName ++ "_" ++ show cutPt, newVals)
+  where
+    col = findAttributeValues df colName
+    numList :: [Float]
+    numList = sort $ flatMap (readMaybe) col -- I am assuming all Maybe are Just here
+    minVal = minimum numList
+    maxVal = maximum numList
+    newVals = map (convertToSymbolic (minVal, cutPt, maxVal)) numList
+
+-- find all cut points for a column columnName -> [cutpoints]
+findCutPoints :: DataFrame -> String -> [Float]
+findCutPoints df colName = cutPoints
+  where
+    col = findAttributeValues df colName
+    numList :: [Float]
+    numList = nub $ sort $ flatMap (readMaybe) col
+    xs = filter (\xs -> length xs >= 2 ) $ windows 2 numList
+    cutPoints = map (\x -> sum x / genericLength x) xs
+
+-- find all the values for that column
+findAttributeValues :: DataFrame -> String -> [String]
+findAttributeValues df cn =
+    case idxM of
+      Just idx -> map (head . (drop idx) . (fst. snd)) (Map.toList (get3 df))
+      Nothing -> replicate (Map.size (get3 df)) "error" -- this shouldn't happen
+    where
+      idxM = elemIndex cn (get1 df)
 
 -- adds a column to the dataset
-addColumnToDF :: DataFrame -> String -> [String]-> DataFrame
-addColumnToDF = undefined
+-- assumes that the size of new column confirms with the size of existing columns
+addColumnToDF :: DataFrame -> (String, [String]) -> DataFrame
+addColumnToDF df (columnName, attrs) = (new_meta, get2 df, new_rows)
+  where
+    new_meta = columnName : (get1 df)
+    new_rows = Map.fromList $ map (uncurry addInFront) (zip attrs old_rows)
+    old_rows =  Map.toList $ get3 df
+
+addInFront :: String -> (Integer, ([String], String)) -> (Integer, ([String], String))
+addInFront na (i, (attrs, des)) = (i, (na:attrs, des))
+
+isNumber :: String -> Bool
+isNumber ""  = False
+isNumber "." = False
+isNumber xs  =
+  case dropWhile isDigit xs of
+    ""       -> True
+    ('.':ys) -> all isDigit ys
+    _        -> False
